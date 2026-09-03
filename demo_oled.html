@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pi_Zaff DogTrack — Schermate OLED palmare</title>
+<style>
+:root{--bg:#12161b;--panel:#1b2129;--fg:#e8edf2;--dim:#8fa0b3;--acc:#3ba55d;--warn:#e5a53a;--bad:#d9534f}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:system-ui,sans-serif;padding:24px 20px 60px}
+header{max-width:1100px;margin:0 auto 28px}
+header h1{font-size:20px;font-weight:700}
+header p{font-size:13px;color:var(--dim);margin-top:6px;line-height:1.6;max-width:760px}
+.note{background:#1c2530;border:1px solid #2a3644;border-radius:8px;padding:10px 14px;font-size:12px;color:var(--dim);margin-top:14px;max-width:760px;line-height:1.6}
+.note b{color:var(--fg)}
+h2.group{max-width:1100px;margin:36px auto 4px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid #2a3542;padding-bottom:8px}
+p.groupDesc{max-width:1100px;margin:0 auto 14px;font-size:11.5px;color:var(--dim)}
+.grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px}
+.device{background:var(--panel);border-radius:14px;padding:14px 14px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;border:1px solid #262e38}
+.bezel{background:#05070a;border-radius:8px;padding:10px;box-shadow:inset 0 0 0 1px #1a2129}
+canvas{display:block;background:#000}
+.label{font-size:12px;font-weight:600;text-align:center}
+.sub{font-size:10.5px;color:var(--dim);text-align:center;line-height:1.5}
+</style></head><body>
+<header>
+  <h1>Pi_Zaff DogTrack — schermate OLED del palmare</h1>
+  <p>Simulazione a pixel del display 64×128 (SSD1309, ruotato in verticale) generata portando 1:1 le stesse
+  chiamate di disegno presenti in <code>palmare/src/main.cpp</code> (coordinate, testi e logica identici — non è
+  un redesign, è una "fotografia" di quello che disegna il firmware). Testo renderizzato a piena risoluzione
+  (non più ingrandito via CSS) per restare nitido; il font resta un'approssimazione monospace del bitmap 5×7 di
+  Adafruit GFX, non un clone pixel-per-pixel delle lettere.</p>
+  <div class="note">
+    <b>✅ Corretto:</b> boot / hold-to-power-off / spegnimento ora disegnano in WHITE (prima BLACK-su-nero,
+    invisibile). <b>Aggiunto:</b> etichette "C"/"P" prima delle batterie nella home, tutte le schermate di
+    associazione/gestione cane (standby/sveglia comprese), errori. <b>Input uniformati:</b> "esci" ora è sempre
+    ruota (mai click lungo, tranne nell'editor del nome) — le liste (Cani, In aria) hanno una riga
+    "&lt; indietro" in cima come già faceva il Menu con "&lt; HOME"; nelle schermate con un'azione extra (Mappa
+    WiFi, Tracce) ruota = esci, click = l'azione in più. Corretto anche un bug: le Azioni cane mostravano solo
+    3 righe su 5, "Elimina" e "Annulla" erano invisibili (ma selezionabili alla cieca).
+    <b>Home, riga superiore riorganizzata:</b> il nome si è spostato via da lì — ora sta centrato sotto il
+    numero di distanza, fino a <b>6 lettere</b> (era 3-4 quando doveva stare stretto in alto). Al suo posto in
+    cima: <b>quota+montagnetta a sinistra</b>, <b>icone "C"/"P" (link GPS collare/palmare) tutto a destra</b> —
+    sostituiscono la vecchia iconcina unica GPS-o-WiFi. Appena cambi cane con la rotellina, per 3 secondi
+    <u>tutta</u> questa riga si svuota e mostra solo "x/y" centrato, poi quota e icone tornano da sole. Riga
+    sotto la bussola: 3 stati ("In movimento"/velocità, "IN FERMA!" lampeggiante, "A riposo"), solo lì — mai
+    nel fallback senza fix (dove però resta comunque visibile il nome, più in basso). Riga gradi+satelliti:
+    spazio vero prima di "SAT". <b>Bussola:</b> c'era margine inutilizzato tra l'anello e la distanza sotto —
+    riportata un po' più giù e più grande (32,50 r17, prima 32,47 r15): il margine sopra è addirittura
+    migliorato (2px invece di 1), quello sotto resta comunque a 2px pulito, nessuna sovrapposizione a nessun
+    angolo di rotazione. <b>Orologio:</b> nello stesso slot in alto a sinistra dov'era la quota — non c'era
+    spazio per tenerli visibili insieme, quindi si alternano ogni 8 secondi (5s quota, 3s orologio),
+    iconcina orologio inclusa. Ora italiana calcolata da GPS (UTC + regola DST UE, calcolata da soli, niente
+    RTC/NTP): gestisce da sola il cambio ora legale/solare. <b>Icona telefono:</b> quando un telefono è
+    connesso al WiFi del palmare, il riquadro della "P" (stato GPS del palmare) mostra un'iconcina di
+    telefono al posto della lettera — stesso box 9×9, stesso stile pieno/bianco degli altri due. Appena il
+    telefono si disconnette torna la normale "P" con lo stato GPS di prima. <b>Bug vero trovato e corretto:</b>
+    a size2 un carattere è alto 14px, quindi la distanza a y=79 occupava le righe 79-92 — il nome, subito
+    sotto a y=90, ci finiva sopra per 3 righe. Non si vedeva "a occhio" perché i margini dell'anello erano
+    giusti, il problema nasceva dopo. Tutto il blocco sotto la bussola è salito di qualche pixel (anello
+    32,48 r16, freccia r12, distanza y75, nome y92, movimento y101, direzione y110, età y119): 3px di margine
+    pulito tra distanza e nome, zero sovrapposizioni, verificato pixel per pixel.
+    <b>Info:</b> aggiunte le ultime coordinate+quota di fix valido ricevute dal collare ("Pos:"/"Alt:" + N/E a
+    6 decimali) e l'HDOP (qualità del fix) — restano visibili anche senza fix attuale, stesso principio.
+    <b>SF/Potenza regolabili:</b> prima erano costanti fisse da ricompilare. Invece di allungare il menu
+    principale (era arrivato a 12 voci — ha anche svelato un bug latente in <code>drawList()</code>: senza
+    uno scroll le righe oltre la 11ª non erano mai raggiungibili, corretto con una finestra scorrevole
+    centrata sulla selezione), sono raccolte in un sottomenu dedicato <b>"Avanzate"</b> — il principale resta
+    a 11 voci. Dentro: "Potenza:" cambia subito la potenza TX del palmare (indipendente per apparato, zero
+    rischi), "Potenza" nelle azioni-cane fa lo stesso per il singolo collare (comando via radio, se si perde
+    resta quella di prima), e una riga "? Che sono?" apre una spiegazione a schermo intero — SF e potenza
+    sono termini tecnici, non ovvi senza contesto. "SF:" invece deve combaciare su palmare E collare o il
+    collegamento si rompe del tutto: trasmette il cambio in broadcast per 40s al vecchio SF, il palmare passa
+    al nuovo SOLO se almeno un collare conferma, ogni collare conferma prima di passare lui stesso, e se
+    entro 60s i due non si risentono tornano da soli al vecchio — nessuno resta orfano in mezzo al bosco.
+    <b>Magnete + standby (collare):</b> prima, tenere il magnete su un collare in standby lo faceva ripartire
+    invece di spegnerlo (la logica di spegnimento vive in <code>loop()</code>, che non gira affatto durante
+    il deep sleep) — bisognava svegliarlo e poi rispegnerlo a parte. Corretto: ora il magnete su un collare
+    in standby lo spegne direttamente (stesso gesto da 3s dello spegnimento normale).
+    <b>Encoder GPIO5 difettoso:</b> su una scheda V4 il canale A dell'encoder non rispondeva mai (confermato
+    con test hardware diretti, non un bug di firmware) — spostato su GPIO2, funzionante. <b>Menu ripulito:</b>
+    tolta la voce "BLE" (sempre disattivata via <code>USE_BLE 0</code>, portava solo a un vicolo cieco) — il
+    menu principale torna a 10 voci, "Mappa" (WiFi) resta al suo posto.
+  </div>
+</header>
+
+<h2 class="group">1 · Avvio</h2>
+<p class="groupDesc">Accensione a magnete (collare) o pulsante (palmare).</p>
+<div class="grid" id="gBoot"></div>
+
+<h2 class="group">2 · Schermata principale</h2>
+<p class="groupDesc">Bussola verso il cane attivo — quella che si vede la maggior parte del tempo.</p>
+<div class="grid" id="gHome"></div>
+
+<h2 class="group">3 · Associare un nuovo collare</h2>
+<p class="groupDesc">Menu → Associa → (attesa) → nome → salvato. Passaggi in ordine.</p>
+<div class="grid" id="gPair"></div>
+
+<h2 class="group">4 · Gestire un cane già associato</h2>
+<p class="groupDesc">Menu → Cani → azioni: standby, sveglia da remoto, rinomina, elimina.</p>
+<div class="grid" id="gManage"></div>
+
+<h2 class="group">5 · Menu e impostazioni</h2>
+<p class="groupDesc">Bussola, mappa WiFi, tracce salvate, info radio, BLE, reset.</p>
+<div class="grid" id="gSettings"></div>
+
+<h2 class="group">6 · Errori</h2>
+<p class="groupDesc">Blocco all'avvio se la radio LoRa non risponde.</p>
+<div class="grid" id="gErr"></div>
+
+<h2 class="group">7 · Spegnimento</h2>
+<div class="grid" id="gPower"></div>
+
+<script>
+// ======================================================================
+// Motore di rendering: disegna direttamente alla risoluzione finale
+// (nessun canvas piccolo + upscale CSS) cosi' il testo resta nitido —
+// fillText antialiasato ingrandito col nearest-neighbor restava sfocato
+// anche con image-rendering:pixelated. Le forme (rettangoli/linee) sono
+// comunque a bordi netti perche' fillRect su coordinate intere non ha
+// antialiasing, a qualunque risoluzione.
+// ======================================================================
+const OLED_W=64, OLED_H=128, SCALE=3;
+function makeOled(canvas){
+  canvas.width = OLED_W*SCALE;
+  canvas.height = OLED_H*SCALE;
+  const ctx = canvas.getContext('2d');
+  const ON='#eaf6ff', OFF='#000000';
+  let textColor=1, textSize=1, cx=0, cy=0;
+  const col = c => c?ON:OFF;
+  function glyph(ch){
+    ctx.font = (7*textSize*SCALE)+'px "Courier New",monospace';
+    ctx.textBaseline='top';
+    ctx.fillStyle = col(textColor);
+    ctx.fillText(ch, cx*SCALE, cy*SCALE);
+  }
+  return {
+    setTextColor(c){ textColor=c; },
+    setTextSize(s){ textSize=s; },
+    setCursor(x,y){ cx=x; cy=y; },
+    clearDisplay(){ ctx.fillStyle=OFF; ctx.fillRect(0,0,canvas.width,canvas.height); },
+    print(str){
+      for(const ch of String(str)){
+        if(ch==='\n'){ cx=0; cy+=8*textSize; continue; }
+        if(cx + 6*textSize > OLED_W){ cx=0; cy+=8*textSize; }
+        glyph(ch);
+        cx += 6*textSize;
+      }
+    },
+    drawFastHLine(x,y,w,c){ ctx.fillStyle=col(c); ctx.fillRect(x*SCALE,y*SCALE,w*SCALE,SCALE); },
+    drawLine(x0,y0,x1,y1,c){
+      ctx.strokeStyle=col(c); ctx.lineWidth=SCALE; ctx.lineCap='square';
+      ctx.beginPath(); ctx.moveTo((x0+0.5)*SCALE,(y0+0.5)*SCALE); ctx.lineTo((x1+0.5)*SCALE,(y1+0.5)*SCALE);
+      ctx.stroke();
+    },
+    drawRect(x,y,w,h,c){
+      ctx.fillStyle=col(c);
+      ctx.fillRect(x*SCALE,y*SCALE,w*SCALE,SCALE);
+      ctx.fillRect(x*SCALE,(y+h-1)*SCALE,w*SCALE,SCALE);
+      ctx.fillRect(x*SCALE,y*SCALE,SCALE,h*SCALE);
+      ctx.fillRect((x+w-1)*SCALE,y*SCALE,SCALE,h*SCALE);
+    },
+    fillRect(x,y,w,h,c){ ctx.fillStyle=col(c); ctx.fillRect(x*SCALE,y*SCALE,w*SCALE,h*SCALE); },
+    drawPixel(x,y,c){ ctx.fillStyle=col(c); ctx.fillRect(x*SCALE,y*SCALE,SCALE,SCALE); },
+    drawRoundRect(x,y,w,h,r,c){
+      ctx.strokeStyle=col(c); ctx.lineWidth=SCALE;
+      ctx.beginPath(); ctx.roundRect(x*SCALE+SCALE/2,y*SCALE+SCALE/2,w*SCALE-SCALE,h*SCALE-SCALE,r*SCALE);
+      ctx.stroke();
+    },
+    fillRoundRect(x,y,w,h,r,c){
+      ctx.fillStyle=col(c);
+      ctx.beginPath(); ctx.roundRect(x*SCALE,y*SCALE,w*SCALE,h*SCALE,r*SCALE);
+      ctx.fill();
+    },
+    drawCircle(cx0,cy0,r,c){
+      ctx.strokeStyle=col(c); ctx.lineWidth=SCALE;
+      ctx.beginPath(); ctx.arc((cx0+0.5)*SCALE,(cy0+0.5)*SCALE,r*SCALE,0,Math.PI*2);
+      ctx.stroke();
+    },
+    fillTriangle(x0,y0,x1,y1,x2,y2,c){
+      ctx.fillStyle=col(c);
+      ctx.beginPath();
+      ctx.moveTo(x0*SCALE,y0*SCALE); ctx.lineTo(x1*SCALE,y1*SCALE); ctx.lineTo(x2*SCALE,y2*SCALE);
+      ctx.closePath(); ctx.fill();
+    },
+    textWidth(str){ return String(str).length*6*textSize; }
+  };
+}
+
+// ---- porting 1:1 delle funzioni di disegno da palmare/src/main.cpp ----
+function drawSignalBars(o,x,y,bars){
+  for(let i=0;i<4;i++){
+    const h=3+i*2, yy=y+9-h;
+    if(i<bars) o.fillRect(x+i*4,yy,3,h,1);
+    else o.drawRect(x+i*4,yy,3,h,1);
+  }
+}
+function drawBattIcon(o,x,y,pct){
+  o.drawRect(x,y,14,6,1);
+  o.fillRect(x+14,y+1,1,4,1);
+  o.fillRect(x+1,y+1,Math.round(pct/100*11),4,1);
+}
+function drawMountainIcon(o,x,y){
+  o.fillTriangle(x,y+8,x+2,y+1,x+4,y+8,1);
+}
+function drawClockIcon(o,x,y){
+  o.drawCircle(x+3,y+4,3,1);
+  o.drawLine(x+3,y+4,x+3,y+2,1);
+  o.drawLine(x+3,y+4,x+5,y+4,1);
+}
+function drawPhoneIcon(o,x,y){
+  o.fillRoundRect(x+2,y+1,4,7,1,0);
+  o.drawPixel(x+3,y+6,1);
+}
+function drawLinkIcon(o,x,y,letter,state,blink){
+  if(state===2){ o.fillRoundRect(x,y,9,9,2,1); o.setTextColor(0); o.setCursor(x+1,y+1); o.print(letter); o.setTextColor(1); }
+  else if(state===1){ o.drawRoundRect(x,y,9,9,2,1); o.setCursor(x+1,y+1); o.print(letter); }
+  else if(blink){ o.drawRoundRect(x,y,9,9,2,1); o.setCursor(x+1,y+1); o.print(letter); }
+}
+function drawCompassRing(o,ccx,ccy,ringR,myHeading){
+  const labels=['N','E','S','O'], labelDeg=[0,90,180,270];
+  for(let i=0;i<4;i++){
+    const rel=(labelDeg[i]-myHeading-90)*Math.PI/180;
+    const lx=ccx+Math.round((ringR+6)*Math.cos(rel));
+    const ly=ccy+Math.round((ringR+6)*Math.sin(rel));
+    const w=o.textWidth(labels[i]), h=7;
+    o.setCursor(lx-Math.round(w/2), ly-Math.round(h/2));
+    o.print(labels[i]);
+  }
+  o.drawCircle(ccx,ccy,ringR,1);
+}
+function drawArrow(o,ccx,ccy,r,angleDeg){
+  const a=(angleDeg-90)*Math.PI/180;
+  const tipX=ccx+Math.round(Math.cos(a)*r), tipY=ccy+Math.round(Math.sin(a)*r);
+  const aL=a+140*Math.PI/180, aR=a-140*Math.PI/180;
+  const lX=ccx+Math.round(Math.cos(aL)*r*0.6), lY=ccy+Math.round(Math.sin(aL)*r*0.6);
+  const rX=ccx+Math.round(Math.cos(aR)*r*0.6), rY=ccy+Math.round(Math.sin(aR)*r*0.6);
+  const bX=ccx-Math.round(Math.cos(a)*r*0.25), bY=ccy-Math.round(Math.sin(a)*r*0.25);
+  o.fillTriangle(tipX,tipY,lX,lY,bX,bY,1);
+  o.fillTriangle(tipX,tipY,rX,rY,bX,bY,1);
+}
+function scrSimple(o,line1,line2){
+  o.clearDisplay(); o.setTextColor(1); o.setTextSize(1);
+  o.setCursor(0,4); o.print(line1);
+  o.drawFastHLine(0,14,64,1);
+  o.setCursor(0,20); o.print(line2);
+}
+function scrList(o,title,rows,sel,footer){
+  o.clearDisplay(); o.setTextColor(1); o.setTextSize(1);
+  o.setCursor(0,0); o.print(title);
+  o.drawFastHLine(0,9,64,1);
+  const maxRows = footer ? 9 : 11;
+  // Finestra scorrevole centrata sulla selezione, come drawList() sul vero
+  // firmware: prima non c'era (ne' qui ne' li'), con menu piu' lunghi di
+  // maxRows le voci in fondo restavano invisibili e irraggiungibili.
+  let first = 0;
+  if (rows.length > maxRows) {
+    first = sel - Math.floor(maxRows/2);
+    if (first < 0) first = 0;
+    if (first > rows.length - maxRows) first = rows.length - maxRows;
+  }
+  rows.slice(first, first+maxRows).forEach((r,ii)=>{
+    const i = first+ii, y=12+ii*10;
+    if(i===sel) o.fillRect(0,y-1,64,9,1);
+    o.setTextColor(i===sel?0:1);
+    o.setCursor(1,y); o.print(r.slice(0,10));
+  });
+  o.setTextColor(1);
+  if(footer){ o.setCursor(0,120); o.print(footer); }
+}
+function scrNameEditor(o,title,typed,letter){
+  o.clearDisplay(); o.setTextColor(1); o.setTextSize(1);
+  o.setCursor(0,0); o.print(title);
+  o.drawFastHLine(0,9,64,1);
+  o.setCursor(1,14); o.print(typed+'_');
+  o.setTextSize(3);
+  o.fillRect(20,36,24,28,1);
+  o.setTextColor(0);
+  o.setCursor(24,39); o.print(letter);
+  o.setTextColor(1); o.setTextSize(1);
+  o.setCursor(0,76); o.print('Ruota:');
+  o.setCursor(0,86); o.print('lettera');
+  o.setCursor(0,100); o.print('Click: ok');
+  o.setCursor(0,114); o.print('Lungo:fine');
+}
+function scrHome(o,{name,idx,cnt,dogGps,myGps,rssiBars,dist,speedTxt,brgTxt,ageTxt,fallback,alt,showFraction,showClock,clock,phoneConnected}={}){
+  o.clearDisplay(); o.setTextColor(1); o.setTextSize(1);
+  // Riga superiore: di default quota (sinistra) + link GPS (destra), con
+  // l'orologio (ora italiana, auto da GPS) che si alterna alla quota nello
+  // stesso posto ogni 5s/3s - non c'e' spazio per tenerli visibili insieme
+  // ("23:59" da solo occupa gia' 30px, quota+icone GPS ne usano 47 su 64.
+  // Appena cambi cane, per 3s tutta la riga si svuota e mostra solo "x/y".
+  if (showFraction) {
+    const frac=(idx||1)+'/'+(cnt||1), fw=o.textWidth(frac);
+    o.setCursor(Math.round((64-fw)/2),0); o.print(frac);
+  } else {
+    if (showClock) {
+      drawClockIcon(o,0,0);
+      o.setCursor(9,0); o.print(clock||'--:--');
+    } else {
+      drawMountainIcon(o,0,0);
+      o.setCursor(6,0); o.print(alt!=null?String(alt):'--');
+    }
+    drawLinkIcon(o,45,0,'C',dogGps.state,dogGps.blink);
+    if (phoneConnected) { o.fillRoundRect(55,0,9,9,2,1); drawPhoneIcon(o,55,0); }
+    else                { drawLinkIcon(o,55,0,'P',myGps.state,myGps.blink); }
+  }
+  drawSignalBars(o,0,10,rssiBars);
+  o.setCursor(16,12); o.print('C');
+  drawBattIcon(o,22,12,62);
+  o.setCursor(38,12); o.print('P');
+  drawBattIcon(o,44,12,81);
+  o.drawFastHLine(0,21,64,1);
+  // Nome centrato, fino a 6 lettere - ora sotto la distanza, non piu' in
+  // alto: usato sia con bussola che nel fallback, si vede sempre.
+  const nm=(name||'Rex').slice(0,6), nw=o.textWidth(nm);
+  if (dist) {
+    drawCompassRing(o,32,48,16,47);
+    drawArrow(o,32,48,12,85);
+    o.setTextSize(2);
+    const w=o.textWidth(dist);
+    o.setCursor(Math.round((64-w)/2),75); o.print(dist);
+    o.setTextSize(1);
+    o.setCursor(Math.round((64-nw)/2),92); o.print(nm);
+    o.setCursor(0,101); o.print(speedTxt);
+    o.setCursor(0,110); o.print(brgTxt);
+    o.setCursor(0,119); o.print(ageTxt);
+  } else {
+    // Movimento/ferma/riposo si vedono SOLO sotto la bussola (ramo sopra):
+    // qui in fallback non compaiono mai, per lo stesso motivo per cui non
+    // compare la bussola stessa - senza fix pieno non sarebbero veritieri.
+    const [l1,l2] = fallback || ['GPS in','fix...'];
+    o.setCursor(0,44); o.print(l1);
+    o.setCursor(0,54); o.print(l2);
+    o.setCursor(Math.round((64-nw)/2),70); o.print(nm);
+  }
+}
+
+// ---- le singole schermate (dati di esempio plausibili) ----
+const SCREENS = {
+  gBoot: [
+    ['Boot logo (2s)', (o)=>{
+      o.clearDisplay(); o.setTextColor(1); o.setTextSize(1);
+      o.drawRect(2,20,60,62,1); o.drawRect(4,22,56,58,1);
+      o.setCursor(12,36); o.print('Pi_Zaff');
+      o.setCursor(15,52); o.print('System');
+      o.setCursor(8,96);  o.print('DogTrack');
+      o.setCursor(20,108); o.print('v2.14(deploy)');
+    }, ''],
+  ],
+  gHome: [
+    ['Home — layout riorganizzato (2 cani)', (o)=>scrHome(o,{name:'Rex',idx:1,cnt:2,dogGps:{state:2,blink:false},myGps:{state:2,blink:false},rssiBars:3,
+      dist:'340m',speedTxt:'12km/h',brgTxt:'SE132 SAT9',ageTxt:'agg. ora',multi:true,alt:245}),
+     'quota+montagnetta a sinistra, "C"/"P" (link GPS) tutto a destra in alto — il nome è sceso, centrato sotto la distanza, fino a 6 lettere'],
+    ['Home — orologio (si alterna alla quota)', (o)=>scrHome(o,{name:'Rex',idx:1,cnt:2,dogGps:{state:2,blink:false},myGps:{state:2,blink:false},rssiBars:3,
+      dist:'340m',speedTxt:'12km/h',brgTxt:'SE132 SAT9',ageTxt:'agg. ora',alt:245,showClock:true,clock:'14:32'}),
+     'ora italiana (auto da GPS, gestisce da sola l\'ora legale) — stesso posto della quota: 5s quota, 3s orologio, a ciclo. Non c\'era spazio per tenerli visibili insieme'],
+    ['Home — telefono connesso al WiFi', (o)=>scrHome(o,{name:'Rex',idx:1,cnt:2,dogGps:{state:2,blink:false},myGps:{state:2,blink:false},rssiBars:3,
+      dist:'340m',speedTxt:'12km/h',brgTxt:'SE132 SAT9',ageTxt:'agg. ora',alt:245,phoneConnected:true}),
+     'la "P" (stato GPS del palmare) lascia il posto a un\'iconcina di telefono, stesso riquadro, finché un telefono resta collegato al WiFi del palmare — appena si scollega torna la "P" di prima'],
+    ['Home — appena cambiato cane (3s)', (o)=>scrHome(o,{name:'Luna',idx:2,cnt:2,dogGps:{state:2,blink:false},myGps:{state:2,blink:false},rssiBars:3,
+      dist:'118m',speedTxt:'8km/h',brgTxt:'W210 SAT7',ageTxt:'agg. ora',multi:true,showFraction:true}),
+     'per i primi 3 secondi dopo aver cambiato cane, TUTTA la riga in alto si svuota e mostra solo "2/2" centrato — quota e icone GPS tornano da sole dopo'],
+    ['Home — un solo cane, nome lungo', (o)=>scrHome(o,{name:'Rocket',idx:1,cnt:1,dogGps:{state:2,blink:false},myGps:{state:2,blink:false},rssiBars:3,
+      dist:'12m',speedTxt:'A riposo',brgTxt:'N4 SAT8',ageTxt:'agg. ora',multi:false,alt:245}),
+     '"Rocket" (6 lettere) centrato sotto la distanza — con un solo cane "x/y" non compare mai. "A riposo" = non in movimento e non in ferma'],
+    ['Home — IN FERMA (lampeggiante)', (o)=>scrHome(o,{name:'Rex',idx:1,cnt:1,dogGps:{state:2,blink:false},myGps:{state:2,blink:false},rssiBars:4,
+      dist:'28m',speedTxt:'IN FERMA!',brgTxt:'E88 SAT11',ageTxt:'agg. ora',multi:false,alt:246}),
+     'anello bussola un po\' più piccolo (15px invece di 21) per fare posto al nome qui sotto, senza che le lettere N/E/S/O che ruotano tocchino nulla'],
+    ['Home — collare mai sentito', (o)=>scrHome(o,{name:'Luna',idx:2,cnt:2,dogGps:{state:0,blink:true},myGps:{state:2,blink:false},rssiBars:0,
+      fallback:['Attendo','segnale']}),
+     'quota "--" perché non è mai arrivata una posizione — il nome resta visibile (centrato più in basso) anche qui, senza bussola'],
+    ['Home — nessun cane associato', (o)=>{
+      o.clearDisplay(); o.setTextColor(1); o.setTextSize(1);
+      o.setCursor(0,30); o.print('Nessun');
+      o.setCursor(0,40); o.print('cane.');
+      o.setCursor(0,58); o.print('Menu ->');
+      o.setCursor(0,68); o.print('Associa');
+    }, 'primo avvio, prima di associare un collare'],
+  ],
+  gPair: [
+    ['1. Menu, voce Associa', (o)=>{
+      scrList(o,'MENU',['< HOME','Associa','Cani','Mappa','Bussola','Unita:m','Tracce','Info','Reset','Avanzate'],1,null);
+    }, ''],
+    ['2. In attesa del collare', (o)=>scrSimple(o,'Associa','Accendi il\ncollare e\nattendi...\n\nRuota=esci'),
+     'nessun collare "in aria" ancora rilevato — qualunque rotazione esce'],
+    ['3. Collare rilevato', (o)=>scrList(o,'In aria',['< indietro','3F8A21C0'],1,null),
+     '"< indietro" e\' la prima riga: si esce ruotando fin li\' e cliccando, mai col click lungo'],
+    ['4. Scrivi il nome', (o)=>scrNameEditor(o,'Nome:','RE','X'),
+     'ruota encoder = cambia lettera, click = conferma carattere'],
+    ['5. Salvato', (o)=>scrSimple(o,'Salvato!','Rex'), 'torna da sola alla Home dopo 1.2s'],
+    ['Limite raggiunto', (o)=>scrSimple(o,'Limite!','Max 6 cani\nEliminane\nuno prima'),
+     'se provi ad associarne un 7°'],
+  ],
+  gManage: [
+    ['1. Elenco cani', (o)=>scrList(o,'Cani',['< indietro','Rex','Luna'],1,null),
+     '"< indietro" in cima, poi i cani — click su un cane porta alle azioni'],
+    ['2. Azioni sul cane', (o)=>scrList(o,'Rex',['Rinomina','Standby','Sveglia','Pot:22dBm','Elimina','Annulla'],1,null),
+     'tutte e 6 le righe visibili (prima "Elimina"/"Annulla" erano tagliate fuori) — "Potenza" e\' nuova, ciclare la potenza TX di questo collare'],
+    ['Standby — inviato', (o)=>scrSimple(o,'Inviato','Standby al\nprossimo\npacchetto\ndel collare.\n\n3 beep =\nspento.'),
+     'il comando parte col prossimo pacchetto ricevuto dal collare, non subito'],
+    ['Sveglia — in corso', (o)=>scrSimple(o,'Sveglio...','Trasmetto\nper 4 sec\nal collare'),
+     'burst mirato all\'ID del collare per 4s'],
+    ['Sveglia — fatto', (o)=>scrSimple(o,'Fatto','Se il collare\nera in standby\nfa 1 beep e\nriparte.'), ''],
+    ['Rinomina', (o)=>scrNameEditor(o,'Rinomina:','LUN','A'), 'stesso editor dell\'associazione, titolo diverso'],
+    ['Conferma eliminazione', (o)=>scrSimple(o,'Conferma','Eliminare\nRex?\n\nClick=SI\nRuota=no'), ''],
+    ['Eliminato', (o)=>scrSimple(o,'Eliminato',''), 'torna da sola alla lista cani dopo 1s'],
+  ],
+  gSettings: [
+    ['Menu principale', (o)=>{
+      scrList(o,'MENU',['< HOME','Associa','Cani','Mappa','Bussola','Unita:m','Tracce','Info','Reset','Avanzate'],4,null);
+    }, '"Unita:" cambia km/ft sul click, resta nel menu — "Avanzate" apre il sottomenu SF/potenza, "BLE" tolta (era sempre disattivata, USE_BLE 0): il menu principale resta a 10 voci'],
+    ['Bussola — avvio calibrazione', (o)=>scrSimple(o,'Bussola','Ruota a 8\nin aria\nper 15s...'), ''],
+    ['Bussola — calibrazione salvata', (o)=>scrSimple(o,'Fatto!','Salvata.'), ''],
+    ['Avanzate — sottomenu', (o)=>scrList(o,'Avanzate',['< indietro','SF:8','Potenza:22','? Che sono?'],1,null),
+     'SF e potenza spostati qui dal menu principale — "< indietro" in cima come Cani/Associa, ultima riga apre una spiegazione a schermo intero'],
+    ['Avanzate — spiegazione', (o)=>scrSimple(o,'Info radio','SF: quanto\nlontano\narriva il\nsegnale.\n\nPotenza:\nforza del\nsegnale\ndel tuo\npalmare.\n\nRuota=esci'),
+     'testo verificato riga per riga (max 10 caratteri ciascuna, 64px): niente vada a capo per sbaglio o si sovrapponga'],
+    ['SF — trasmissione in corso', (o)=>scrSimple(o,'Cambio SF...','Trasmetto\nfino a 40s\nSF 8->9'),
+     'broadcast di CMD_SET_SF al VECCHIO SF per 40s (copre anche un collare fermo, ciclo di 30s) — non spegnere durante l\'operazione'],
+    ['SF — cambiato', (o)=>scrSimple(o,'SF cambiato','2/2 collari\nconfermati.\nOra SF 9.'),
+     'passa al nuovo SF SOLO se almeno un collare ha confermato — altrimenti resta quello di prima'],
+    ['SF — nessuna risposta', (o)=>scrSimple(o,'SF invariato','Nessuna\nrisposta.\nSF non\ncambiato.'),
+     'zero collari confermati: il palmare NON cambia il proprio SF, cosi\' non perde il collegamento con nessuno'],
+    ['Potenza cane — nel menu Azioni', (o)=>scrList(o,'Rex',['Rinomina','Standby','Sveglia','Pot:14dBm','Elimina','Annulla'],3,null),
+     'clic ripetuti ciclano la potenza TX di QUEL collare (10/14/17/20/22dBm) e restano su questa schermata, come "Unita:" nel menu — indipendente per apparato, nessun protocollo di prova/rollback necessario'],
+    ['Mappa WiFi', (o)=>scrSimple(o,'Mappa WiFi','Pi_zaff_sys_DogTrack\npizaff123\n\nIP:\n192.168.4.1\n\nTel:1\n\nRuota=esci\nClick=OFF'),
+     'ruota = esci (WiFi resta acceso), click = esci E spegni il WiFi'],
+    ['Tracce', (o)=>scrSimple(o,'Tracce','Sessioni:\n3\n\nSpazio:\n12%\n\nRuota=esci\nClick=canc.'), 'ruota = esci, click = vai a conferma cancellazione'],
+    ['Tracce — conferma cancellazione', (o)=>scrSimple(o,'CANC.TUTTE?','Click=SI\nRuota=no'), ''],
+    ['Tracce — cancellate', (o)=>scrSimple(o,'Fatto','Tracce\ncancellate'), ''],
+    ['Info', (o)=>scrSimple(o,'Info','SF8\nRSSI:-92\nSNR:8.5\nCal:OK C:2\nBP:81%\nBC:62%\nPos:\nN41.898344\nE15.957554\nAlt:245m\nHDOP:1.2\nRuota=esci'),
+     '"Pos:"/"Alt:" = ultime coordinate+quota di fix valido ricevute dal collare (restano anche se ora è senza fix). "HDOP" = qualità di quel fix, più basso = meglio'],
+    ['Info — fix scarso', (o)=>scrSimple(o,'Info','SF8\nRSSI:-98\nSNR:3.4\nCal:OK C:2\nBP:81%\nBC:58%\nPos:\nN41.902110\nE15.961200\nAlt:512m\nHDOP:8.7\nRuota=esci'),
+     'satelliti ammassati/pochi visibili: stessa posizione (in quota, sul Gargano), ma meno affidabile'],
+    ['Info — collare mai in fix', (o)=>scrSimple(o,'Info','SF8\nRSSI:-104\nSNR:2.1\nCal:OK C:1\nBP:81%\nBC:52%\nPos: n/d\nRuota=esci'),
+     'nessuna posizione ancora ricevuta da questo collare'],
+    ['Reset di fabbrica', (o)=>scrSimple(o,'RESET?','Click=SI\nRuota=no'), ''],
+  ],
+  gErr: [
+    ['Radio LoRa non trovata', (o)=>scrSimple(o,'ERR LoRa','Radio non\ntrovata!\nControlla\nsaldature'),
+     'blocca il boot — problema hardware (SPI/saldature)'],
+  ],
+  gPower: [
+    ['Tieni premuto per spegnere', (o)=>{
+      o.clearDisplay(); o.setTextColor(1); o.setTextSize(1);
+      o.setCursor(2,40); o.print('Tieni per');
+      o.setCursor(2,50); o.print('spegnere');
+      o.drawRect(2,66,60,10,1);
+      o.fillRect(2,66,40,10,1);
+    }, ''],
+    ['Spegnimento', (o)=>{
+      o.clearDisplay(); o.setTextColor(1); o.setTextSize(1);
+      o.setCursor(2,50); o.print('Spengo...');
+    }, ''],
+  ],
+};
+
+for (const groupId in SCREENS) {
+  const grid = document.getElementById(groupId);
+  SCREENS[groupId].forEach(([label, draw, sub]) => {
+    const dev = document.createElement('div'); dev.className='device';
+    const bez = document.createElement('div'); bez.className='bezel';
+    const cv = document.createElement('canvas');
+    bez.appendChild(cv); dev.appendChild(bez);
+    const lb = document.createElement('div'); lb.className='label'; lb.textContent=label;
+    dev.appendChild(lb);
+    if (sub) { const sb=document.createElement('div'); sb.className='sub'; sb.textContent=sub; dev.appendChild(sb); }
+    grid.appendChild(dev);
+    draw(makeOled(cv));
+  });
+}
+</script>
+</body></html>

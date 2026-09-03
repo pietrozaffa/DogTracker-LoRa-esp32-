@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash('C:\\\\Users\\\\menam/.platformio/penv/Scripts/pio.exe' run *)",
+      "Bash(find \"$HOME/.platformio\" -iname \"QMC5883LCompass*\" -maxdepth 6 2>/dev/null | head -5)",
+      "Read(//c/Users/menam/.platformio/**)",
+      "Bash(find 'C:\\\\Users\\\\menam/.platformio/lib' 'C:\\\\Users\\\\menam/.platformio/packages' -iname *QMC5883*)",
+      "Bash(grep -n \"delay\\([0-9]\\\\{4,\\\\}\\)\" src/main.cpp)",
+      "Bash(taskkill //F //PID 10500)",
+      "Bash(taskkill //F //PID 12152)",
+      "Bash(taskkill //F //PID 22076)",
+      "Bash('C:\\\\Users\\\\menam/.platformio/penv/Scripts/pio.exe' device *)",
+      "Bash(tasklist //FI \"IMAGENAME eq pio.exe\")",
+      "Bash(tasklist //FI \"IMAGENAME eq python.exe\")",
+      "Bash(taskkill //F //PID 32208)",
+      "Bash(taskkill //F //PID 5496)",
+      "Bash(taskkill //F //PID 6248)",
+      "Bash(echo \"started PID $!\")",
+      "Bash(tasklist //FI \"IMAGENAME eq pio.exe\" 2>&1; echo \"---\"; tail -20 /tmp/flash5.log)",
+      "Read(//tmp/**)",
+      "Bash(echo \"PID $!\")",
+      "Bash(tail -15 /tmp/flash_gpio2.log)",
+      "Bash(tasklist //FI \"IMAGENAME eq pio.exe\" 2>&1; echo \"---\"; sleep 5; tail -20 /tmp/flash_gpio2.log)",
+      "WebSearch",
+      "WebFetch(domain:resource.heltec.cn)",
+      "WebFetch(domain:wiki.heltec.org)",
+      "PowerShell(cd \"c:\\\\Users\\\\menam\\\\Desktop\\\\firmware collare palmare v2 19 V4pins\\\\collare\"; & \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e collare_v4 2>&1 | Select-Object -Last 30)",
+      "PowerShell(cd \"c:\\\\Users\\\\menam\\\\Desktop\\\\firmware collare palmare v2 19 V4pins\\\\palmare\"; & \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e palmare_v4 2>&1 | Select-Object -Last 30)",
+      "PowerShell(& \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" device list 2>&1)",
+      "PowerShell(cd \"c:\\\\Users\\\\menam\\\\Desktop\\\\firmware collare palmare v2 19 V4pins\\\\collare\"; & \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e collare_v4 --target upload --upload-port COM5 2>&1 | Select-Object -Last 30)",
+      "PowerShell(cd \"c:\\\\Users\\\\menam\\\\Desktop\\\\firmware collare palmare v2 19 V4pins\\\\collare\"; & \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e collare_v4 2>&1 | Select-Object -Last 15)",
+      "PowerShell(cd \"c:\\\\Users\\\\menam\\\\Desktop\\\\firmware collare palmare v2 19 V4pins\\\\palmare\"; $env:PLATFORMIO_BUILD_DIR = \"$env:TEMP\\\\pio_build_palmare_v4\"; & \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e palmare_v4 2>&1 | Select-Object -Last 15)",
+      "PowerShell(cd \"c:\\\\Users\\\\menam\\\\Desktop\\\\firmware collare palmare v2 19 V4pins\\\\palmare\"; $env:PLATFORMIO_BUILD_DIR = \"$env:TEMP\\\\pio_build_palmare_v4\"; & \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e palmare_v4 --target upload --upload-port COM4 2>&1 | Select-Object -Last 25)",
+      "PowerShell(cd \"c:\\\\Users\\\\menam\\\\Desktop\\\\firmware collare palmare v2 19 V4pins\\\\collare\"; $env:PLATFORMIO_BUILD_DIR = \"$env:TEMP\\\\pio_build_collare_v4\"; & \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e collare_v4 2>&1 | Select-Object -Last 15)",
+      "PowerShell(cd \"c:\\\\Users\\\\menam\\\\Desktop\\\\firmware collare palmare v2 19 V4pins\\\\collare\"; $env:PLATFORMIO_BUILD_DIR = \"$env:TEMP\\\\pio_build_collare_v4\"; & \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run -e collare_v4 --target upload --upload-port COM5 2>&1 | Select-Object -Last 25)"
+    ]
+  }
+}

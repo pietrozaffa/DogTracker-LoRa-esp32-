@@ -1,0 +1,10 @@
+# Tabella partizioni Pi_Zaff palmare — flash 16 MB (Heltec V4)
+# app0 = 3 MB (entra comodamente anche con USE_BLE 1)
+# spiffs (LittleFS) = ~12.8 MB per le tracce GPX
+#
+# Name,     Type, SubType,  Offset,   Size,     Flags
+nvs,        data, nvs,      0x9000,   0x5000,
+otadata,    data, ota,      0xe000,   0x2000,
+app0,       app,  ota_0,    0x10000,  0x300000,
+spiffs,     data, spiffs,   0x310000, 0xCE0000,
+coredump,   data, coredump, 0xFF0000, 0x10000,

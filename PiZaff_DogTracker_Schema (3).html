@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pi_Zaff System · Dog Tracker · Schema Collegamenti</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Exo+2:wght@300;600;800&display=swap');
+
+  :root{
+    --bg:     #0a0e14;
+    --card:   #111620;
+    --border: #1e2d40;
+    --accent: #00d4ff;
+    --green:  #00ff9d;
+    --warn:   #ffaa00;
+    --red:    #ff4455;
+    --purple: #b388ff;
+    --pink:   #ff6ec7;
+    --text:   #c8d8e8;
+    --dim:    #5a7080;
+
+    --wire-gnd: #888;
+    --wire-3v3: #ffaa00;
+    --wire-tx:  #00ff9d;
+    --wire-rx:  #00d4ff;
+    --wire-i2c: #b388ff;
+    --wire-spi: #ff6ec7;
+    --wire-io:  #ff4455;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  body{
+    background:
+      radial-gradient(ellipse at top, #0d1a2e 0%, var(--bg) 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Exo 2', sans-serif;
+    min-height:100vh;
+    padding:0 0 60px;
+  }
+
+  header{
+    background:linear-gradient(135deg,#060c14 0%,#0d1a2e 100%);
+    border-bottom:1px solid var(--border);
+    padding:22px 28px 18px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::before{
+    content:'';
+    position:absolute; inset:0;
+    background:repeating-linear-gradient(
+      90deg, transparent, transparent 60px,
+      rgba(0,212,255,.03) 60px, rgba(0,212,255,.03) 61px
+    );
+  }
+  .logo-row{
+    max-width:1100px; margin:0 auto;
+    display:flex; align-items:center; gap:14px;
+    position:relative;
+  }
+  .logo-icon{
+    width:44px; height:44px;
+    border:2px solid var(--accent);
+    border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px;
+    box-shadow:0 0 18px rgba(0,212,255,.35);
+  }
+  h1{
+    font-size:1.4rem; font-weight:800; letter-spacing:.02em;
+    color:#fff; line-height:1.1;
+  }
+  h1 span{ color:var(--accent); }
+  .subtitle{
+    font-size:.7rem; color:var(--dim);
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:.14em; margin-top:3px;
+  }
+  .badge{
+    margin-left:auto;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.7rem;
+    color:var(--accent);
+    border:1px solid var(--border);
+    padding:5px 12px;
+    border-radius:20px;
+  }
+
+  main{
+    max-width:1100px;
+    margin:0 auto;
+    padding:24px 18px 0;
+    display:grid; gap:20px;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:22px 24px;
+    position:relative;
+  }
+  .card::before{
+    content:'';
+    position:absolute; top:0; left:24px; right:24px; height:1px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent);
+    opacity:.3;
+  }
+  .card-title{
+    font-size:.7rem;
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:.18em;
+    color:var(--accent);
+    text-transform:uppercase;
+    margin-bottom:18px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .card-title::after{
+    content:''; flex:1; height:1px; background:var(--border);
+  }
+
+  .legend{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+    gap:10px;
+  }
+  .legend-item{
+    display:flex; align-items:center; gap:10px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.75rem;
+    padding:8px 12px;
+    background:#0d1520;
+    border:1px solid var(--border);
+    border-radius:8px;
+  }
+  .legend-swatch{
+    width:24px; height:4px; border-radius:2px;
+    flex-shrink:0;
+  }
+
+  .schema-wrap{
+    overflow-x:auto;
+    background:
+      radial-gradient(circle at 30% 50%, rgba(0,212,255,.06), transparent 50%),
+      radial-gradient(circle at 70% 50%, rgba(0,255,157,.04), transparent 50%),
+      #07090d;
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:30px 20px;
+    position:relative;
+  }
+  .schema-wrap::before{
+    content:'';
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(0,212,255,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,.04) 1px, transparent 1px);
+    background-size:20px 20px;
+    pointer-events:none;
+    border-radius:12px;
+  }
+  svg{
+    display:block;
+    margin:0 auto;
+    min-width:1020px;
+    max-width:100%;
+    height:auto;
+    position:relative;
+  }
+
+  .module-box{ fill:#0d1520; stroke:var(--border); stroke-width:1.5; }
+  .module-box.esp{ stroke:var(--accent); stroke-width:2; }
+  .module-title{ fill:#fff; font-family:'Exo 2',sans-serif; font-weight:800; font-size:15px; }
+  .module-sub{ fill:var(--dim); font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.08em; }
+  .pin-label{ fill:var(--text); font-family:'JetBrains Mono',monospace; font-size:10px; }
+  .pin-dot{ stroke:#0a0e14; stroke-width:1; }
+  .wire{ fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+  .wire-gnd{ stroke:var(--wire-gnd); }
+  .wire-3v3{ stroke:var(--wire-3v3); }
+  .wire-tx{  stroke:var(--wire-tx); }
+  .wire-rx{  stroke:var(--wire-rx); }
+  .wire-i2c{ stroke:var(--wire-i2c); }
+  .wire-spi{ stroke:var(--wire-spi); }
+  .wire-io{  stroke:var(--wire-io); }
+  .wire-label{ font-family:'JetBrains Mono',monospace; font-size:10px; }
+
+  .pin-table{
+    width:100%;
+    border-collapse:collapse;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.82rem;
+  }
+  .pin-table th{
+    text-align:left;
+    padding:10px 12px;
+    background:#0d1520;
+    color:var(--accent);
+    font-size:.7rem;
+    font-weight:700;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    border-bottom:1px solid var(--border);
+  }
+  .pin-table td{
+    padding:11px 12px;
+    border-bottom:1px solid var(--border);
+  }
+  .pin-table tr:last-child td{ border-bottom:none; }
+  .pin-table tr:hover td{ background:rgba(0,212,255,.04); }
+  .pin-pill{
+    display:inline-block;
+    padding:3px 9px;
+    border-radius:5px;
+    font-size:.72rem;
+    font-weight:700;
+    background:#0d1520;
+    border:1px solid var(--border);
+  }
+  .pin-pill.io{  color:var(--red);    border-color:var(--red); }
+  .pin-pill.gnd{ color:#888;          border-color:#666; }
+  .pin-pill.v3{  color:var(--warn);   border-color:var(--warn); }
+  .pin-pill.tx{  color:var(--green);  border-color:var(--green); }
+  .pin-pill.rx{  color:var(--accent); border-color:var(--accent); }
+  .pin-pill.i2c{ color:var(--purple); border-color:var(--purple); }
+  .pin-pill.spi{ color:var(--pink);   border-color:var(--pink); }
+
+  .warning{
+    background:linear-gradient(135deg, rgba(255,68,85,.08), rgba(255,170,0,.05));
+    border:1px solid rgba(255,68,85,.3);
+    border-left:4px solid var(--red);
+    border-radius:8px;
+    padding:14px 18px;
+    margin-top:14px;
+    font-size:.88rem;
+  }
+  .warning strong{ color:var(--red); }
+  .info{
+    background:rgba(0,212,255,.04);
+    border:1px solid rgba(0,212,255,.2);
+    border-left:4px solid var(--accent);
+    border-radius:8px;
+    padding:14px 18px;
+    margin-top:14px;
+    font-size:.88rem;
+  }
+  .info strong{ color:var(--accent); }
+
+  footer{
+    text-align:center;
+    margin-top:30px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.72rem;
+    color:var(--dim);
+    letter-spacing:.15em;
+    line-height:1.9;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-row">
+    <div class="logo-icon">🐕</div>
+    <div>
+      <h1>PI_ZAFF <span>SYSTEM</span></h1>
+      <div class="subtitle">DOG TRACKER · GPS + LORA 868 MHZ · COLLARE + PALMARE</div>
+    </div>
+    <div class="badge">SCHEMA v2.20 · V4</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- LEGENDA -->
+  <div class="card">
+    <div class="card-title">legenda colori fili</div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--wire-3v3)"></div>3.3V alimentazione</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--wire-gnd)"></div>GND massa</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--wire-rx)"></div>Dati verso ESP (RX)</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--wire-tx)"></div>Dati da ESP (TX)</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--wire-i2c)"></div>I2C SDA/SCL</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--wire-spi)"></div>SPI display</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--wire-io)"></div>Reed · Buzzer</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--pink)"></div>Batteria</div>
+    </div>
+    <div class="info">
+      <strong>📌 Come leggere lo schema:</strong> i pin dell'ESP32 sono allineati alla stessa altezza dei pin dei moduli — ogni filo segnale è una <strong>linea dritta</strong>, senza incroci. Le alimentazioni (3.3V arancio, GND grigio) corrono sui binari esterni ai lati, separate dai segnali.
+    </div>
+  </div>
+
+  <!-- ═══════════ COLLARE ═══════════ -->
+  <div class="card">
+    <div class="card-title">schema collare · sul cane</div>
+    <div class="schema-wrap">
+      <svg viewBox="0 0 1020 710" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- ANTENNA -->
+        <rect x="420" y="40" width="140" height="60" rx="10" class="module-box"/>
+        <text x="490" y="65" text-anchor="middle" class="module-title" font-size="13">ANTENNA</text>
+        <text x="490" y="82" text-anchor="middle" class="module-sub">868 MHz · 10 dBi</text>
+        <circle cx="490" cy="100" r="3" class="pin-dot" fill="#888"/>
+        <line x1="490" y1="100" x2="490" y2="180" class="wire wire-gnd"/>
+        <text x="500" y="145" class="wire-label" fill="#888">u.FL → SMA</text>
+
+        <!-- ESP32-S3 -->
+        <rect x="380" y="180" width="220" height="360" rx="12" class="module-box esp"/>
+        <text x="490" y="212" text-anchor="middle" class="module-title">ESP32-S3 LoRa</text>
+        <text x="490" y="230" text-anchor="middle" class="module-sub">HELTEC V3/V4 · SX1262</text>
+
+        <!-- pin destra ESP (segnali, allineati ai moduli) -->
+        <circle cx="600" cy="290" r="4" class="pin-dot" fill="#00d4ff"/>
+        <text x="592" y="294" text-anchor="end" class="pin-label">G33 RX</text>
+        <circle cx="600" cy="315" r="4" class="pin-dot" fill="#00ff9d"/>
+        <text x="592" y="319" text-anchor="end" class="pin-label">G16 TX</text>
+        <circle cx="600" cy="470" r="4" class="pin-dot" fill="#b388ff"/>
+        <text x="592" y="474" text-anchor="end" class="pin-label">G41 SDA</text>
+        <circle cx="600" cy="495" r="4" class="pin-dot" fill="#b388ff"/>
+        <text x="592" y="499" text-anchor="end" class="pin-label">G42 SCL</text>
+
+        <!-- pin sinistra ESP -->
+        <circle cx="380" cy="300" r="4" class="pin-dot" fill="#ff4455"/>
+        <text x="388" y="304" class="pin-label">G4 reed</text>
+        <circle cx="380" cy="468" r="4" class="pin-dot" fill="#ff4455"/>
+        <text x="388" y="472" class="pin-label">G21 buzzer</text>
+
+        <!-- pin fondo ESP -->
+        <circle cx="420" cy="540" r="4" class="pin-dot" fill="#ff6ec7"/>
+        <text x="428" y="556" class="pin-label">JST batt</text>
+        <circle cx="520" cy="540" r="4" class="pin-dot" fill="#ffaa00"/>
+        <text x="528" y="556" class="pin-label">3.3V</text>
+        <circle cx="480" cy="540" r="4" class="pin-dot" fill="#888"/>
+        <text x="452" y="556" class="pin-label">GND</text>
+
+        <!-- GPS NEO-M8N -->
+        <rect x="760" y="210" width="180" height="130" rx="10" class="module-box"/>
+        <text x="850" y="238" text-anchor="middle" class="module-title" font-size="14">GPS NEO-M8N</text>
+        <text x="850" y="256" text-anchor="middle" class="module-sub">ANTENNA ATTIVA</text>
+        <circle cx="760" cy="290" r="4" class="pin-dot" fill="#00d4ff"/>
+        <text x="768" y="294" class="pin-label">TX</text>
+        <circle cx="760" cy="315" r="4" class="pin-dot" fill="#00ff9d"/>
+        <text x="768" y="319" class="pin-label">RX</text>
+        <circle cx="940" cy="290" r="4" class="pin-dot" fill="#ffaa00"/>
+        <text x="932" y="294" text-anchor="end" class="pin-label">VCC</text>
+        <circle cx="940" cy="315" r="4" class="pin-dot" fill="#888"/>
+        <text x="932" y="319" text-anchor="end" class="pin-label">GND</text>
+
+        <!-- MPU6050 -->
+        <rect x="760" y="410" width="180" height="130" rx="10" class="module-box"/>
+        <text x="850" y="438" text-anchor="middle" class="module-title" font-size="14">MPU6050</text>
+        <text x="850" y="456" text-anchor="middle" class="module-sub">ACCELEROMETRO I2C</text>
+        <circle cx="760" cy="470" r="4" class="pin-dot" fill="#b388ff"/>
+        <text x="768" y="474" class="pin-label">SDA</text>
+        <circle cx="760" cy="495" r="4" class="pin-dot" fill="#b388ff"/>
+        <text x="768" y="499" class="pin-label">SCL</text>
+        <circle cx="940" cy="470" r="4" class="pin-dot" fill="#ffaa00"/>
+        <text x="932" y="474" text-anchor="end" class="pin-label">VCC</text>
+        <circle cx="940" cy="495" r="4" class="pin-dot" fill="#888"/>
+        <text x="932" y="499" text-anchor="end" class="pin-label">GND</text>
+
+        <!-- REED SWITCH -->
+        <rect x="60" y="250" width="180" height="110" rx="10" class="module-box"/>
+        <text x="150" y="278" text-anchor="middle" class="module-title" font-size="14">REED SWITCH</text>
+        <text x="150" y="296" text-anchor="middle" class="module-sub">MAGNETE ON/OFF</text>
+        <circle cx="240" cy="300" r="4" class="pin-dot" fill="#ff4455"/>
+        <text x="232" y="313" text-anchor="end" class="pin-label">pin1</text>
+        <circle cx="60" cy="330" r="4" class="pin-dot" fill="#888"/>
+        <text x="70" y="334" class="pin-label">pin2</text>
+
+        <!-- BUZZER -->
+        <rect x="60" y="410" width="180" height="110" rx="10" class="module-box"/>
+        <text x="150" y="438" text-anchor="middle" class="module-title" font-size="14">BUZZER</text>
+        <text x="150" y="456" text-anchor="middle" class="module-sub">PASSIVO · 1=ON 3=OFF</text>
+        <circle cx="240" cy="468" r="4" class="pin-dot" fill="#ff4455"/>
+        <text x="232" y="481" text-anchor="end" class="pin-label">+</text>
+        <circle cx="60" cy="495" r="4" class="pin-dot" fill="#888"/>
+        <text x="70" y="499" class="pin-label">−</text>
+
+        <!-- BATTERIA -->
+        <rect x="60" y="570" width="180" height="100" rx="10" class="module-box"/>
+        <text x="150" y="598" text-anchor="middle" class="module-title" font-size="14">BATTERIA</text>
+        <text x="150" y="616" text-anchor="middle" class="module-sub">LIPO 3000mAh · BMS</text>
+        <circle cx="240" cy="638" r="4" class="pin-dot" fill="#ff6ec7"/>
+        <text x="232" y="651" text-anchor="end" class="pin-label">JST</text>
+
+        <!-- ═══ FILI SEGNALE (linee dritte, pin allineati) ═══ -->
+        <line x1="600" y1="290" x2="760" y2="290" class="wire wire-rx"/>
+        <text x="655" y="283" class="wire-label" fill="#00d4ff">GPS TX → G33</text>
+        <line x1="600" y1="315" x2="760" y2="315" class="wire wire-tx"/>
+        <text x="655" y="332" class="wire-label" fill="#00ff9d">G16 → GPS RX</text>
+
+        <line x1="600" y1="470" x2="760" y2="470" class="wire wire-i2c"/>
+        <text x="670" y="463" class="wire-label" fill="#b388ff">SDA</text>
+        <line x1="600" y1="495" x2="760" y2="495" class="wire wire-i2c"/>
+        <text x="670" y="512" class="wire-label" fill="#b388ff">SCL</text>
+
+        <line x1="240" y1="300" x2="380" y2="300" class="wire wire-io"/>
+        <text x="262" y="293" class="wire-label" fill="#ff4455">reed → G4</text>
+        <line x1="240" y1="468" x2="380" y2="468" class="wire wire-io"/>
+        <text x="252" y="461" class="wire-label" fill="#ff4455">buzzer+ → G21</text>
+
+        <!-- Batteria → JST board (sale sotto l'ESP, nessun incrocio) -->
+        <path d="M 240 638 L 420 638 L 420 540" class="wire" stroke="#ff6ec7"/>
+        <text x="258" y="631" class="wire-label" fill="#ff6ec7">LiPo → JST board</text>
+
+        <!-- ═══ ALIMENTAZIONE 3.3V (binario destro esterno) ═══ -->
+        <path d="M 940 290 L 968 290 L 968 640 L 520 640 L 520 540" class="wire wire-3v3"/>
+        <line x1="940" y1="470" x2="968" y2="470" class="wire wire-3v3"/>
+        <text x="948" y="278" class="wire-label" fill="#ffaa00">3.3V</text>
+
+        <!-- ═══ GND (binario destro esterno + binario sinistro) ═══ -->
+        <path d="M 940 315 L 992 315 L 992 665 L 480 665 L 480 540" class="wire wire-gnd"/>
+        <line x1="940" y1="495" x2="992" y2="495" class="wire wire-gnd"/>
+        <text x="984" y="303" class="wire-label" fill="#888">GND</text>
+
+        <path d="M 60 330 L 36 330 L 36 545" class="wire wire-gnd"/>
+        <line x1="60" y1="495" x2="36" y2="495" class="wire wire-gnd"/>
+        <line x1="24" y1="545" x2="48" y2="545" class="wire wire-gnd"/>
+        <line x1="29" y1="551" x2="43" y2="551" class="wire wire-gnd"/>
+        <line x1="34" y1="557" x2="38" y2="557" class="wire wire-gnd"/>
+        <text x="54" y="551" class="wire-label" fill="#888">GND comune → board</text>
+
+      </svg>
+    </div>
+
+    <div class="info">
+      <strong>📌 Nessun filo per il LoRa:</strong> radio SX1262, OLED di bordo e gestione batteria/USB-C sono già cablati internamente sulla board Heltec. Colleghi solo i moduli esterni mostrati.
+    </div>
+    <div class="warning">
+      <strong>⚠ Antenna SEMPRE collegata prima di accendere:</strong> trasmettere senza antenna può bruciare lo stadio RF dell'SX1262. Danno non riparabile.
+    </div>
+  </div>
+
+  <!-- TABELLA PIN COLLARE -->
+  <div class="card">
+    <div class="card-title">tabella pin · collare</div>
+    <table class="pin-table">
+      <thead>
+        <tr><th>Pin ESP32-S3</th><th>Tipo</th><th>Collegato a</th><th>Funzione</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="pin-pill v3">3.3V</span></td><td>Alim.</td><td>GPS VCC · MPU6050 VCC</td><td>Alimentazione moduli in parallelo</td></tr>
+        <tr><td><span class="pin-pill gnd">GND</span></td><td>Massa</td><td>GPS · MPU6050 · reed pin2 · buzzer −</td><td>Massa comune</td></tr>
+        <tr><td><span class="pin-pill rx">GPIO 33</span></td><td>UART RX</td><td>GPS <b>TX</b></td><td>Riceve dati NMEA dal GPS</td></tr>
+        <tr><td><span class="pin-pill tx">GPIO 16</span></td><td>UART TX</td><td>GPS <b>RX</b></td><td>Invia comandi al GPS. V3: GPIO 34</td></tr>
+        <tr><td><span class="pin-pill i2c">GPIO 41</span></td><td>I2C SDA</td><td>MPU6050 SDA</td><td>Dati accelerometro</td></tr>
+        <tr><td><span class="pin-pill i2c">GPIO 42</span></td><td>I2C SCL</td><td>MPU6050 SCL</td><td>Clock I2C</td></tr>
+        <tr><td><span class="pin-pill io">GPIO 4</span></td><td>Input + wake</td><td>Reed switch pin1</td><td>ON/OFF a magnete (RTC). V3: GPIO 7</td></tr>
+        <tr><td><span class="pin-pill io">GPIO 21</span></td><td>Output</td><td>Buzzer +</td><td>1 beep ON · 3 OFF · 5 reset radio</td></tr>
+        <tr><td><span class="pin-pill io">JST</span></td><td>Batteria</td><td>LiPo 3000mAh con BMS</td><td>Alimentazione + ricarica via USB-C</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════ PALMARE ═══════════ -->
+  <div class="card">
+    <div class="card-title">schema palmare · in mano</div>
+    <div class="schema-wrap">
+      <svg viewBox="0 0 1020 730" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- ANTENNA -->
+        <rect x="420" y="30" width="140" height="60" rx="10" class="module-box"/>
+        <text x="490" y="55" text-anchor="middle" class="module-title" font-size="13">ANTENNA</text>
+        <text x="490" y="72" text-anchor="middle" class="module-sub">868 MHz · 10 dBi</text>
+        <circle cx="490" cy="90" r="3" class="pin-dot" fill="#888"/>
+        <line x1="490" y1="90" x2="490" y2="150" class="wire wire-gnd"/>
+        <text x="500" y="125" class="wire-label" fill="#888">u.FL → SMA</text>
+
+        <!-- ESP32-S3 -->
+        <rect x="380" y="150" width="220" height="490" rx="12" class="module-box esp"/>
+        <text x="490" y="182" text-anchor="middle" class="module-title">ESP32-S3 LoRa</text>
+        <text x="490" y="200" text-anchor="middle" class="module-sub">HELTEC V3/V4 · SX1262</text>
+
+        <!-- pin destra ESP (allineati ai moduli) -->
+        <circle cx="600" cy="250" r="4" class="pin-dot" fill="#00d4ff"/>
+        <text x="592" y="254" text-anchor="end" class="pin-label">G33 RX</text>
+        <circle cx="600" cy="275" r="4" class="pin-dot" fill="#00ff9d"/>
+        <text x="592" y="279" text-anchor="end" class="pin-label">G16 TX</text>
+        <circle cx="600" cy="300" r="4" class="pin-dot" fill="#b388ff"/>
+        <text x="592" y="304" text-anchor="end" class="pin-label">G41 SDA</text>
+        <circle cx="600" cy="325" r="4" class="pin-dot" fill="#b388ff"/>
+        <text x="592" y="329" text-anchor="end" class="pin-label">G42 SCL</text>
+        <circle cx="600" cy="510" r="4" class="pin-dot" fill="#ff6ec7"/>
+        <text x="592" y="514" text-anchor="end" class="pin-label">G38 CLK</text>
+        <circle cx="600" cy="535" r="4" class="pin-dot" fill="#ff6ec7"/>
+        <text x="592" y="539" text-anchor="end" class="pin-label">G39 DIN</text>
+        <circle cx="600" cy="560" r="4" class="pin-dot" fill="#ff6ec7"/>
+        <text x="592" y="564" text-anchor="end" class="pin-label">G40 CS</text>
+        <circle cx="600" cy="585" r="4" class="pin-dot" fill="#ff6ec7"/>
+        <text x="592" y="589" text-anchor="end" class="pin-label">G15 DC</text>
+        <circle cx="600" cy="610" r="4" class="pin-dot" fill="#ff6ec7"/>
+        <text x="592" y="614" text-anchor="end" class="pin-label">G47 RST</text>
+
+        <!-- pin sinistra ESP -->
+        <circle cx="380" cy="262" r="4" class="pin-dot" fill="#00ff9d"/>
+        <text x="388" y="266" class="pin-label">G2 encA</text>
+        <circle cx="380" cy="287" r="4" class="pin-dot" fill="#00ff9d"/>
+        <text x="388" y="291" class="pin-label">G6 encB</text>
+        <circle cx="380" cy="312" r="4" class="pin-dot" fill="#ff4455"/>
+        <text x="388" y="316" class="pin-label">G4 encSW</text>
+        <circle cx="380" cy="468" r="4" class="pin-dot" fill="#ff4455"/>
+        <text x="388" y="472" class="pin-label">G21 buzzer</text>
+
+        <!-- pin fondo ESP -->
+        <circle cx="420" cy="640" r="4" class="pin-dot" fill="#ff6ec7"/>
+        <text x="428" y="656" class="pin-label">JST batt</text>
+        <circle cx="520" cy="640" r="4" class="pin-dot" fill="#ffaa00"/>
+        <text x="528" y="656" class="pin-label">3.3V</text>
+        <circle cx="480" cy="640" r="4" class="pin-dot" fill="#888"/>
+        <text x="452" y="656" class="pin-label">GND</text>
+
+        <!-- GPS + BUSSOLA -->
+        <rect x="760" y="180" width="180" height="180" rx="10" class="module-box"/>
+        <text x="850" y="208" text-anchor="middle" class="module-title" font-size="13">GPS + BUSSOLA</text>
+        <text x="850" y="226" text-anchor="middle" class="module-sub">NEO-M8N + QMC5883L</text>
+        <circle cx="760" cy="250" r="4" class="pin-dot" fill="#00d4ff"/>
+        <text x="768" y="254" class="pin-label">TX</text>
+        <circle cx="760" cy="275" r="4" class="pin-dot" fill="#00ff9d"/>
+        <text x="768" y="279" class="pin-label">RX</text>
+        <circle cx="760" cy="300" r="4" class="pin-dot" fill="#b388ff"/>
+        <text x="768" y="304" class="pin-label">SDA</text>
+        <circle cx="760" cy="325" r="4" class="pin-dot" fill="#b388ff"/>
+        <text x="768" y="329" class="pin-label">SCL</text>
+        <circle cx="940" cy="250" r="4" class="pin-dot" fill="#ffaa00"/>
+        <text x="932" y="254" text-anchor="end" class="pin-label">VCC</text>
+        <circle cx="940" cy="275" r="4" class="pin-dot" fill="#888"/>
+        <text x="932" y="279" text-anchor="end" class="pin-label">GND</text>
+
+        <!-- OLED SSD1309 -->
+        <rect x="760" y="440" width="180" height="220" rx="10" class="module-box"/>
+        <text x="850" y="468" text-anchor="middle" class="module-title" font-size="13">OLED 2.42"</text>
+        <text x="850" y="486" text-anchor="middle" class="module-sub">SSD1309 · VERTICALE</text>
+        <circle cx="760" cy="510" r="4" class="pin-dot" fill="#ff6ec7"/>
+        <text x="768" y="514" class="pin-label">CLK</text>
+        <circle cx="760" cy="535" r="4" class="pin-dot" fill="#ff6ec7"/>
+        <text x="768" y="539" class="pin-label">DIN</text>
+        <circle cx="760" cy="560" r="4" class="pin-dot" fill="#ff6ec7"/>
+        <text x="768" y="564" class="pin-label">CS</text>
+        <circle cx="760" cy="585" r="4" class="pin-dot" fill="#ff6ec7"/>
+        <text x="768" y="589" class="pin-label">DC</text>
+        <circle cx="760" cy="610" r="4" class="pin-dot" fill="#ff6ec7"/>
+        <text x="768" y="614" class="pin-label">RST</text>
+        <circle cx="940" cy="510" r="4" class="pin-dot" fill="#ffaa00"/>
+        <text x="932" y="514" text-anchor="end" class="pin-label">VCC</text>
+        <circle cx="940" cy="535" r="4" class="pin-dot" fill="#888"/>
+        <text x="932" y="539" text-anchor="end" class="pin-label">GND</text>
+
+        <!-- ENCODER -->
+        <rect x="60" y="190" width="180" height="160" rx="10" class="module-box"/>
+        <text x="150" y="218" text-anchor="middle" class="module-title" font-size="14">ENCODER</text>
+        <text x="150" y="236" text-anchor="middle" class="module-sub">KY-040 · MENU + ON/OFF</text>
+        <circle cx="240" cy="262" r="4" class="pin-dot" fill="#00ff9d"/>
+        <text x="232" y="275" text-anchor="end" class="pin-label">CLK</text>
+        <circle cx="240" cy="287" r="4" class="pin-dot" fill="#00ff9d"/>
+        <text x="215" y="300" text-anchor="end" class="pin-label">DT</text>
+        <circle cx="240" cy="312" r="4" class="pin-dot" fill="#ff4455"/>
+        <text x="232" y="325" text-anchor="end" class="pin-label">SW</text>
+        <circle cx="150" cy="190" r="4" class="pin-dot" fill="#ffaa00"/>
+        <circle cx="60" cy="330" r="4" class="pin-dot" fill="#888"/>
+        <text x="70" y="334" class="pin-label">GND</text>
+
+        <!-- + verso 3.3V (stub verso l'alto) -->
+        <line x1="150" y1="190" x2="150" y2="160" class="wire wire-3v3"/>
+        <text x="150" y="150" text-anchor="middle" class="wire-label" fill="#ffaa00">+ → 3.3V board</text>
+
+        <!-- BUZZER -->
+        <rect x="60" y="410" width="180" height="110" rx="10" class="module-box"/>
+        <text x="150" y="438" text-anchor="middle" class="module-title" font-size="14">BUZZER</text>
+        <text x="150" y="456" text-anchor="middle" class="module-sub">PASSIVO · ALLARMI LINK</text>
+        <circle cx="240" cy="468" r="4" class="pin-dot" fill="#ff4455"/>
+        <text x="232" y="481" text-anchor="end" class="pin-label">+</text>
+        <circle cx="60" cy="495" r="4" class="pin-dot" fill="#888"/>
+        <text x="70" y="499" class="pin-label">−</text>
+
+        <!-- BATTERIA -->
+        <rect x="60" y="560" width="180" height="100" rx="10" class="module-box"/>
+        <text x="150" y="588" text-anchor="middle" class="module-title" font-size="14">BATTERIA</text>
+        <text x="150" y="606" text-anchor="middle" class="module-sub">LIPO 3000mAh · BMS</text>
+        <circle cx="240" cy="628" r="4" class="pin-dot" fill="#ff6ec7"/>
+        <text x="232" y="641" text-anchor="end" class="pin-label">JST</text>
+
+        <!-- ═══ FILI SEGNALE (linee dritte) ═══ -->
+        <line x1="600" y1="250" x2="760" y2="250" class="wire wire-rx"/>
+        <text x="655" y="243" class="wire-label" fill="#00d4ff">GPS TX → G33</text>
+        <line x1="600" y1="275" x2="760" y2="275" class="wire wire-tx"/>
+        <text x="655" y="292" class="wire-label" fill="#00ff9d">G16 → GPS RX</text>
+        <line x1="600" y1="300" x2="760" y2="300" class="wire wire-i2c"/>
+        <line x1="600" y1="325" x2="760" y2="325" class="wire wire-i2c"/>
+        <text x="670" y="342" class="wire-label" fill="#b388ff">SDA · SCL</text>
+
+        <line x1="600" y1="510" x2="760" y2="510" class="wire wire-spi"/>
+        <text x="648" y="503" class="wire-label" fill="#ff6ec7">SPI display ×5</text>
+        <line x1="600" y1="535" x2="760" y2="535" class="wire wire-spi"/>
+        <line x1="600" y1="560" x2="760" y2="560" class="wire wire-spi"/>
+        <line x1="600" y1="585" x2="760" y2="585" class="wire wire-spi"/>
+        <line x1="600" y1="610" x2="760" y2="610" class="wire wire-spi"/>
+
+        <line x1="240" y1="262" x2="380" y2="262" class="wire wire-tx"/>
+        <line x1="240" y1="287" x2="380" y2="287" class="wire wire-tx"/>
+        <line x1="240" y1="312" x2="380" y2="312" class="wire wire-io"/>
+        <text x="248" y="255" class="wire-label" fill="#00ff9d">CLK·DT → G2·G6</text>
+        <text x="248" y="336" class="wire-label" fill="#ff4455">SW → G4 (accensione)</text>
+
+        <line x1="240" y1="468" x2="380" y2="468" class="wire wire-io"/>
+        <text x="252" y="461" class="wire-label" fill="#ff4455">buzzer+ → G21</text>
+
+        <!-- Batteria → JST board -->
+        <path d="M 240 628 L 420 628 L 420 640" class="wire" stroke="#ff6ec7"/>
+        <text x="258" y="621" class="wire-label" fill="#ff6ec7">LiPo → JST board</text>
+
+        <!-- ═══ 3.3V binario destro ═══ -->
+        <path d="M 940 250 L 968 250 L 968 690 L 520 690 L 520 640" class="wire wire-3v3"/>
+        <line x1="940" y1="510" x2="968" y2="510" class="wire wire-3v3"/>
+        <text x="948" y="238" class="wire-label" fill="#ffaa00">3.3V</text>
+
+        <!-- ═══ GND binario destro + sinistro ═══ -->
+        <path d="M 940 275 L 992 275 L 992 712 L 480 712 L 480 640" class="wire wire-gnd"/>
+        <line x1="940" y1="535" x2="992" y2="535" class="wire wire-gnd"/>
+        <text x="984" y="263" class="wire-label" fill="#888">GND</text>
+
+        <path d="M 60 330 L 36 330 L 36 535" class="wire wire-gnd"/>
+        <line x1="60" y1="495" x2="36" y2="495" class="wire wire-gnd"/>
+        <line x1="24" y1="535" x2="48" y2="535" class="wire wire-gnd"/>
+        <line x1="29" y1="541" x2="43" y2="541" class="wire wire-gnd"/>
+        <line x1="34" y1="547" x2="38" y2="547" class="wire wire-gnd"/>
+        <text x="54" y="541" class="wire-label" fill="#888">GND comune → board</text>
+
+      </svg>
+    </div>
+
+    <div class="info">
+      <strong>📌 Display in VERTICALE:</strong> monta l'OLED ruotato di 90° (connettore verso il basso). Il firmware disegna già tutto in verticale 64×128 — anello bussola, freccia, distanza.
+    </div>
+    <div class="warning">
+      <strong>⚠ Pin con funzione dedicata sulla V4:</strong> secondo il pin layout ufficiale
+      <b>GPIO 7 = VFEM_Ctrl</b> e <b>GPIO 2 = FEM_EN</b> (amplificatore RF), <b>GPIO 34 = VGNSS_Ctrl</b>,
+      <b>GPIO 21 = OLED_RST</b>. Questo schema mostra i pin <b>V4</b>. Per la V3 valgono 7, 34, 21 —
+      il firmware li seleziona da solo in base all'ambiente in platformio.ini.
+    </div>
+    <div class="warning">
+      <strong>⚠ Due eccezioni in questo montaggio:</strong> la manopola è su <b>GPIO 2</b> (il GPIO 5 non
+      risponde su questo esemplare, verificato scambiando i fili) e il cicalino su <b>GPIO 21</b>. Entrambi
+      funzionano, ma il layout li indica occupati. <b>Verifica:</b> guarda l'RSSI in Menu → Info mentre giri
+      la manopola: se oscilla, il GPIO 2 è collegato all'amplificatore e va spostato.
+    </div>
+    <div class="warning">
+      <strong>⚠ MAI encoder su GPIO 45/46:</strong> sono strapping pin dell'ESP32-S3.
+      I moduli KY-040 hanno pull-up onboard che al boot terrebbero GPIO 45 alto →
+      VDD_SPI a 1.8V → la flash non parte e <strong>la board non si avvia</strong>.
+      Usa GPIO 5 e 6 come nello schema.
+    </div>
+    <div class="warning">
+      <strong>⚠ Encoder SW su GPIO 7, non altrove:</strong> è l'unico tra i pin usati (RTC 0-21) che può svegliare l'ESP32-S3 dal deep sleep. Se lo sposti, l'accensione da spento non funziona più.
+    </div>
+  </div>
+
+  <!-- TABELLA PIN PALMARE -->
+  <div class="card">
+    <div class="card-title">tabella pin · palmare</div>
+    <table class="pin-table">
+      <thead>
+        <tr><th>Pin ESP32-S3</th><th>Tipo</th><th>Collegato a</th><th>Funzione</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="pin-pill v3">3.3V</span></td><td>Alim.</td><td>GPS VCC · OLED VCC · Encoder +</td><td>Alimentazione moduli in parallelo</td></tr>
+        <tr><td><span class="pin-pill gnd">GND</span></td><td>Massa</td><td>GPS · OLED · Encoder · Buzzer −</td><td>Massa comune</td></tr>
+        <tr><td><span class="pin-pill rx">GPIO 33</span></td><td>UART RX</td><td>GPS <b>TX</b></td><td>Riceve dati NMEA dal GPS</td></tr>
+        <tr><td><span class="pin-pill tx">GPIO 16</span></td><td>UART TX</td><td>GPS <b>RX</b></td><td>Invia comandi al GPS. V3: GPIO 34</td></tr>
+        <tr><td><span class="pin-pill i2c">GPIO 41</span></td><td>I2C SDA</td><td>Bussola QMC5883L SDA</td><td>Dati magnetometro</td></tr>
+        <tr><td><span class="pin-pill i2c">GPIO 42</span></td><td>I2C SCL</td><td>Bussola QMC5883L SCL</td><td>Clock I2C</td></tr>
+        <tr><td><span class="pin-pill spi">GPIO 38</span></td><td>SPI CLK</td><td>OLED CLK</td><td>Clock display</td></tr>
+        <tr><td><span class="pin-pill spi">GPIO 39</span></td><td>SPI MOSI</td><td>OLED DIN</td><td>Dati display</td></tr>
+        <tr><td><span class="pin-pill spi">GPIO 40</span></td><td>SPI CS</td><td>OLED CS</td><td>Chip select</td></tr>
+        <tr><td><span class="pin-pill spi">GPIO 15</span></td><td>Output</td><td>OLED DC</td><td>Data/Command display. V3: GPIO 21</td></tr>
+        <tr><td><span class="pin-pill spi">GPIO 47</span></td><td>Output</td><td>OLED RST</td><td>Reset display</td></tr>
+        <tr><td><span class="pin-pill tx">GPIO 2</span></td><td>Input</td><td>Encoder CLK (A)</td><td>Rotazione menu. GPIO 5 difettoso su questa scheda</td></tr>
+        <tr><td><span class="pin-pill tx">GPIO 6</span></td><td>Input</td><td>Encoder DT (B)</td><td>Direzione rotazione</td></tr>
+        <tr><td><span class="pin-pill io">GPIO 4</span></td><td>Input + wake</td><td>Encoder SW</td><td>Click · 2s ON · 5s OFF. V3: GPIO 7</td></tr>
+        <tr><td><span class="pin-pill io">GPIO 21</span></td><td>Output</td><td>Buzzer +</td><td>Allarmi link perso / batteria / ferma</td></tr>
+        <tr><td><span class="pin-pill io">JST</span></td><td>Batteria</td><td>LiPo 3000mAh con BMS</td><td>Alimentazione + ricarica via USB-C</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- NOTE FINALI -->
+  <div class="card">
+    <div class="card-title">note di montaggio</div>
+
+    <div class="warning">
+      <strong>⚠ Incrocio TX/RX:</strong> il TX del GPS va sull'RX dell'ESP (GPIO 33) e viceversa.
+      Se il GPS "non parla" (nessun dato sul monitor seriale), inverti i due fili dati — è l'errore più comune in assoluto.
+    </div>
+
+    <div class="info">
+      <strong>📌 GND comune:</strong> tutte le masse (GPS, MPU/bussola, display, encoder, buzzer, reed) devono essere collegate insieme al GND della board. Senza massa comune i segnali non funzionano o "ballano".
+    </div>
+
+    <div class="info">
+      <strong>📌 GPS 1.65–3.6V:</strong> alimenta i moduli GPS SEMPRE dal pin 3.3V, MAI da 5V/VIN — a 5V li bruci.
+    </div>
+
+    <div class="info">
+      <strong>💡 Reed switch nel case:</strong> incollalo piatto contro la parete interna (parete assottigliata a 1.5–2mm nel punto del magnete). Magnete 2s = accensione · 3s = spegnimento. Segna il punto sul case con un'incisione nella stampa 3D.
+    </div>
+
+    <div class="info">
+      <strong>💡 Heltec V4:</strong> stessi pin della V3. Ricorda solo la logica Vext invertita (HIGH = ON) se alimenti i moduli dal pin Ve invece che dal 3.3V fisso.
+    </div>
+  </div>
+
+  <footer>
+    PI_ZAFF SYSTEM · DOG TRACKER GPS-LORA<br>
+    <span>schema collegamenti v2.7 · collare + palmare</span>
+  </footer>
+
+</main>
+
+</body>
+</html>
