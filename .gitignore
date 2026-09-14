@@ -13,6 +13,7 @@
 .vscode/
 .idea/
 *.code-workspace
+.claude/
 
 # OS
 Thumbs.db

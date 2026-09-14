@@ -214,3 +214,15 @@ Entrambi i `main.cpp` hanno in testa un commento lungo che spiega pinout,
 differenze V3/V4, e le scelte non ovvie (gestione PA RF esterno, `gpio_hold_en`
 prima del deep sleep, perché serve la tabella partizioni custom sul palmare,
 ecc.). È la prima cosa da leggere prima di mettere mano al codice.
+
+---
+
+## Licenza
+
+Copyright (C) 2025 Pietro Zaffarano.
+
+Questo progetto è distribuito con licenza **GNU GPL v3.0**: puoi usarlo,
+studiarlo, modificarlo e ridistribuirlo, ma ogni derivato che distribuisci
+deve restare open source con la stessa licenza — non può essere chiuso in un
+prodotto proprietario né essere fatto passare per opera di qualcun altro.
+Testo completo in [LICENSE](LICENSE).
