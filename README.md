@@ -21,7 +21,6 @@ server, nessuna SIM, nessuna copertura cellulare richiesta.
 |---|---|
 | `collare/` | Progetto PlatformIO del collare (`src/main.cpp`, ~1000 righe) |
 | `palmare/` | Progetto PlatformIO del palmare (`src/main.cpp`, ~3100 righe) + tabelle partizioni |
-| `cad/` | `fusion360_box_generator.py` — script generatore del case |
 | `palmare dogtrk.stl` / `.3mf` | Case del palmare pronto per la stampa 3D |
 | `PiZaff_DogTrack_Manuale_A5 (2).pdf` | Manuale utente (formato A5) |
 | `PiZaff_DogTrack_Libretto (1).pdf` | Libretto di istruzioni |
