@@ -1,6 +1,6 @@
 // ============================================================
 //  PiZaff DogTrack - Palmare GPS-LoRa
-//  Copyright (C) 2025 Pietro Zaffarano
+//  Copyright (C) 2026 Pietro Zaffarano
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
